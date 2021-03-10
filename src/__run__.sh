@@ -1,0 +1,1 @@
+./dist/aavsoscrapper --auid=ASASSN-21cu --savepath=/home/chrysikos/Repos/aavsoScrapper/src/
