@@ -1,6 +1,10 @@
 import requests as req
 from bs4 import BeautifulSoup as bs
 import urllib.parse
+import os
+import io
+import PIL.Image as Image
+
 
 class aavsoScrapper:
     def __init__(self):
@@ -15,7 +19,17 @@ class aavsoScrapper:
         form_build_id = soup.find('input', {"name":"form_build_id"})['value']
         form_id = soup.find('input', {"name":"form_id"})['value']
         op = "Create a finder chart"
-        auid = args[0]
+
+        auid = ""
+        savepath = ""
+        for arg in args:
+            if arg.startswith("--auid"):
+                auid = arg.split("=")[1]
+            elif arg.startswith("--savepath"):
+                savepath = arg.split("=")[1]
+
+
+        print("Request data for star: " + auid)
         r = req.post('https://www.aavso.org/', data = 
         {
             'form_build_id':form_build_id,
@@ -48,8 +62,32 @@ class aavsoScrapper:
                                 cells[5].text,
                                 cells[6].text)
             comparisonStars.append(cs)
+        print("Data has captured.")
+        
+        print("Downloading reference image.")
         img = req.get(img_url).content
+        print("Download image completed.")
+        imagePath = savepath + auid + ".png"
+        print("Saving image to: " + imagePath)
+        image = Image.open(io.BytesIO(img))
+        image.save(imagePath)
+        print("Save image completed.")
 
+        
+        
+
+        data = [""]
+        print("AUID            " + "RA" + "\t\t\t\t" + "DEC" + "\t\t\t\t" + "Label" + "\t" + "V" + "\t\t\t" + "b-v" + "\t\t\t\t" + "Comments")
+        for s in comparisonStars:
+            data.append(s.toFile())
+            print(s.toString())
+
+        starsFilePath = savepath + auid + ".txt"
+        print("Saving comparison stars file to: " + starsFilePath)
+        with open(starsFilePath, 'w') as f:
+            for item in data:
+                f.write("%s\n" % item)
+        print("save comparison stars completed.")
 
 class ComparisonStar:
     def __init__(self,auid,ra,dec,label,v,bv,comment):
@@ -60,3 +98,9 @@ class ComparisonStar:
         self.v = v
         self.bv = bv
         self.comment = comment
+    
+    def toString(self):
+        return self.auid + "\t" + self.ra + "\t" + self.dec + "\t" + self.label + "\t" + self.v + "\t" + self.bv + "\t" + self.comment
+    
+    def toFile(self):
+        return self.auid + "," + self.ra + "," + self.dec + "," + self.label + "," + self.v + "," + self.bv + "," + self.comment

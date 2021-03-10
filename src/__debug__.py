@@ -4,7 +4,8 @@ def main():
     program = aavsoScrapper()
     program.doTheFuckingJob(
         [
-            "ASASSN-21cu"
+            "--auid=ASASSN-21cu",
+            "--savepath=/home/chrysikos/Repos/aavsoScrapper/src/"
         ])
 
 
