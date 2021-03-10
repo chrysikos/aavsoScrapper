@@ -1,0 +1,1 @@
+pyinstaller __init__.py --name aavsoscrapper --onefile
